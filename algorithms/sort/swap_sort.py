@@ -74,8 +74,6 @@ class TestSwapSort(unittest.TestCase):
                 return arr[b]
             return arr[c]
 
-
-
     @staticmethod
     def quick_sort_rec(arr, s, e):
         if s + 1 == e and arr[s] > arr[e]:
