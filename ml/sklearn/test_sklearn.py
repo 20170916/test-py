@@ -5,6 +5,7 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.feature_selection import VarianceThreshold
+from sklearn.decomposition import PCA
 import unittest
 import jieba
 
@@ -161,6 +162,20 @@ class TestSklearn(unittest.TestCase):
     def test_variance(self):
         TestSklearn.variance()
 
+    @staticmethod
+    def pac():
+        """
+        主成分分析进行特征降维
+        :return:None
+        """
+        pca = PCA(n_components=0.9)
+        data = pca.fit_transform([[2, 8, 4, 5], [6, 3, 0, 8], [5, 4, 9, 1]])
+        print(data)
+
+        return None
+
+    def test_pac(self):
+        TestSklearn.pac()
 
 # if __name__ == "__main__":
 #     dictvec()
