@@ -4,6 +4,7 @@
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.feature_selection import VarianceThreshold
 import unittest
 import jieba
 
@@ -145,6 +146,20 @@ class TestSklearn(unittest.TestCase):
 
     def test_stand(self):
         TestSklearn.stand()
+
+    @staticmethod
+    def variance():
+        """
+        特征选择-删除低方差的特征
+        :return:None
+        """
+        var = VarianceThreshold(threshold=0.0)
+        data = var.fit_transform([[0, 2, 0, 3], [0, 1, 4, 3], [0, 1, 1, 3]])
+        print(data)
+        return None
+
+    def test_variance(self):
+        TestSklearn.variance()
 
 
 # if __name__ == "__main__":
