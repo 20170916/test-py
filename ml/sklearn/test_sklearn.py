@@ -3,7 +3,7 @@
 # author: lo time:2019-01-16
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import unittest
 import jieba
 
@@ -131,6 +131,20 @@ class TestSklearn(unittest.TestCase):
 
     def test_mm(self):
         TestSklearn.mms()
+
+    @staticmethod
+    def stand():
+        """
+        标准化缩放
+        :return:None
+        """
+        std = StandardScaler()
+        data = std.fit_transform([[1., -1., 3.], [2., 4., 2.], [4., 6., -1.]])
+        print(data)
+        return None
+
+    def test_stand(self):
+        TestSklearn.stand()
 
 
 # if __name__ == "__main__":
