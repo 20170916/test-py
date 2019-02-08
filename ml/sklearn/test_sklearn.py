@@ -3,6 +3,7 @@
 # author: lo time:2019-01-16
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.preprocessing import MinMaxScaler
 import unittest
 import jieba
 
@@ -23,12 +24,12 @@ class TestSklearn(unittest.TestCase):
                                    {'city': 'shenzhen', 'temperature': 60}])  # type: object
 
         # 输出所有特征
-        print(dict.get_feature_names())
+        print("dict.get_feature_names():----- \n", dict.get_feature_names())
 
         # 输出特征和对应的特征值，一般用不到
-        print(dict.inverse_transform(data))
+        print("dict.inverse_transform(data):----- \n", dict.inverse_transform(data))
 
-        print(data)
+        print("data:----\n", data)
         return None
 
     def test_dictvec(self):
@@ -115,6 +116,21 @@ class TestSklearn(unittest.TestCase):
 
     def test_chinese_vec(self):
         TestSklearn.tfidf_vec()
+
+    @staticmethod
+    def mms():
+        """
+        归一化处理
+        :return: None
+        """
+        # feature_range默认是（0，1）
+        mms = MinMaxScaler(feature_range=(2, 3))
+        data = mms.fit_transform([[90, 20, 10, 40], [60, 4, 15, 45], [75, 3, 13, 46]])
+        print(data)
+        return None
+
+    def test_mm(self):
+        TestSklearn.mms()
 
 
 # if __name__ == "__main__":
