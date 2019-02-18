@@ -19,14 +19,14 @@ class FBLocationTest(unittest.TestCase):
         :return:None
         """
         # 读取数据
-        data = pd.read_csv("./train.csv")
+        data = pd.read_csv("./data/train.csv")
         print(data.head(10))
         # 处理数据
         # 1 缩小数据，对查询数据进行筛选
         data = data.query("x > 1.0 & x < 1.25 &y > 2.5 & y < 2.75")
 
         # 处理时间数据
-        time_value = pd.to_datetime(date['time'], unit=5)
+        time_value = pd.to_datetime(data['time'], unit='s')
 
         print(time_value)
 
@@ -36,13 +36,15 @@ class FBLocationTest(unittest.TestCase):
         # 构造时间特征
         data["day"] = time_value.day
         data["hour"] = time_value.hour
-        data["weekday"] = time_value.weekdahy
+        data["weekday"] = time_value.weekday
 
         # 把时间戳特征删除,pandas中 axis=1表示删除列，sklearn中axis=0表示删除列
-        data.drop(["time"], axis=1)
-
+        data = data.drop(["time"], axis=1)
+        print(data)
 
         # 特征工程（标准化）
+
+        return None
 
     def test_variance(self):
         FBLocationTest.knncls()
