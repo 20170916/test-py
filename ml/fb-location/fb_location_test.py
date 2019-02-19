@@ -7,6 +7,7 @@ from datetime import date
 from sklearn.datasets import load_iris, fetch_20newsgroups, load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 
@@ -42,7 +43,32 @@ class FBLocationTest(unittest.TestCase):
         data = data.drop(["time"], axis=1)
         print(data)
 
+        # 删除签到数量少于n的数据
+        place_count = data.groupby("place_id").count()
+        tf = place_count[place_count.row_id > 3].reset_index()
+        data = data[data["place_id"].isin(tf.place_id)]
+
+        print(data)
+
+        # 取出数据中的特征值和目标
+        y = data["place_id"]
+        x = data.drop(["place_id"], axis=1)
+
+        # 分割训练集和测试集
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+
         # 特征工程（标准化）
+        std = StandardScaler()
+
+        # 算法流程
+        knn = KNeighborsClassifier(n_neighbors=5)
+        # fit predict score
+        knn.fit(x_train, y_train)
+        # 得出预测结果
+        y_predict = knn.predict(x_test)
+        print("预测的目标签到位置为：", y_predict)
+        # 输出预测准确率
+        print("预测准确率：", knn.score(x_test, y_test))
 
         return None
 
