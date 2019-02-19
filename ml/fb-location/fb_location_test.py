@@ -59,6 +59,9 @@ class FBLocationTest(unittest.TestCase):
 
         # 特征工程（标准化）
         std = StandardScaler()
+        # 对测试集和训练集的特征值进行标准化
+        x_train = std.fit_transform(x_train)
+        x_test = std.transform(x_test)
 
         # 算法流程
         knn = KNeighborsClassifier(n_neighbors=5)
