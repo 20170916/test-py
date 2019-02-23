@@ -5,6 +5,7 @@ import unittest
 import pandas as pd
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 
 
 class TitanicDecision(unittest.TestCase):
@@ -30,7 +31,7 @@ class TitanicDecision(unittest.TestCase):
         #  分割数据集
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
 
-        # 进行特征工程
+        # 进行特征工程,对类别特征进行one-hot编码
         dict = DictVectorizer(sparse=False)
         # 一行特征转化成字典
         x_train = dict.fit_transform(x_train.to_dict(orient="records"))
@@ -38,6 +39,16 @@ class TitanicDecision(unittest.TestCase):
         # 对测试集进行特征抽取
         x_test = dict.transform(x_test.to_dict(orient='records'))
         print(x_train)
+
+        # 用决策树预测
+        dec = DecisionTreeClassifier()
+        dec.fit(x_train, y_train)
+        # 预测准确率
+        print("预测的准确率", dec.score(x_test, y_test))
+
+        # 导出决策树结构
+        export_graphviz(dec, out_file="./tree.dot",feature_names=['age', 'pclass=1st', 'pclass=2nd', 'pclass=3rd', 'sex=female', 'sex=male'])
+
 
         return None
 
