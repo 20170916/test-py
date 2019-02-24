@@ -36,15 +36,22 @@ class BostonHousePricePredict(unittest.TestCase):
         y_test = std_y.transform(y_test.reshape(-1,1))
 
         # 4 estimator评估预测
-        # 正规方程求解方式预测结果
+        # 4.1 正规方程求解方式预测结果
         lr = LinearRegression()
         lr.fit(x_train, y_train)
         print(lr.coef_)
 
         # 预测测试集的房价
-        y_predict = std_y.inverse_transform(lr.predict(x_train))
-        print("测试集里每个房子的预测价格 ", y_predict )
+        y_lr_predict = std_y.inverse_transform(lr.predict(x_train))
+        print("测试集里每个房子的预测价格 ", y_lr_predict )
 
+        # 4.2 梯度下降进行房价预测
+        sgd = SGDRegressor()
+        sgd.fit(x_train, y_train)
+        print(sgd.coef_)
+        # 预测测试集的房价
+        y_sgd_predict = std_y.inverse_transform(sgd.predict(x_test))
+        print("sgd预测，测试集里每个房子的预测价格", y_sgd_predict )
 
         return None
 
