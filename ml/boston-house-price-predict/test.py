@@ -6,6 +6,7 @@ from sklearn.datasets import load_boston
 from sklearn.linear_model import LinearRegression, SGDRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error
 
 
 class BostonHousePricePredict(unittest.TestCase):
@@ -42,8 +43,9 @@ class BostonHousePricePredict(unittest.TestCase):
         print(lr.coef_)
 
         # 预测测试集的房价
-        y_lr_predict = std_y.inverse_transform(lr.predict(x_train))
-        print("测试集里每个房子的预测价格 ", y_lr_predict )
+        y_lr_predict = std_y.inverse_transform(lr.predict(x_test))
+        print("正规方程测试集里每个房子的预测价格 ", y_lr_predict)
+        print("正规方程的均方误差", mean_squared_error(std_y.inverse_transform(y_test), y_lr_predict))
 
         # 4.2 梯度下降进行房价预测
         sgd = SGDRegressor()
@@ -52,6 +54,8 @@ class BostonHousePricePredict(unittest.TestCase):
         # 预测测试集的房价
         y_sgd_predict = std_y.inverse_transform(sgd.predict(x_test))
         print("sgd预测，测试集里每个房子的预测价格", y_sgd_predict )
+        print("梯度下降的均方误差", mean_squared_error(std_y.inverse_transform(y_test), y_sgd_predict))
+
 
         return None
 
