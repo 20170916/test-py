@@ -23,7 +23,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None):
     return outputs
 
 
-def compute_accuracy(xs, v_xs, ys, v_ys, prediction, session ):
+def compute_accuracy(xs, v_xs, ys, v_ys, prediction, session):
     # 计算准确度
     # global prediction
     # 将xs feed到prediction中，生成预测值,1行10列，0到1的概率值
