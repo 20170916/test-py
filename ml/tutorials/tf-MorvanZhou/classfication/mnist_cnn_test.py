@@ -23,21 +23,11 @@ def add_layer(inputs, in_size, out_size, activation_function=None):
     return outputs
 
 
-def compute_accuracy(xs, v_xs, ys, v_ys, prediction, sess, keep_prob):
-    # 计算准确度
+def compute_accuracy(xs, v_xs, ys, v_ys, sess, keep_prob, prediction):
     # global prediction
-    # 将xs feed到prediction中，生成预测值,1行10列，0到1的概率值
-    # y_pre = session.run(prediction, feed_dict={xs: v_xs})
     y_pre = sess.run(prediction, feed_dict={xs: v_xs, keep_prob: 1})
-
-    # 比对最大概率与真实值是否匹配
-    # correct_prediction = tf.equal(tf.argmax(y_pre, 1), tf.argmax(v_ys, 1))
-    correct_prediction = tf.equal(tf.argmax(y_pre, 1), tf.argmax(v_ys, 1))
-    # accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    correct_prediction = tf.equal(tf.argmax(y_pre, 1), tf.argmax(v_ys,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-    # 得到最终输出的百分比
-    # result = session.run(accuracy, feed_dict={xs: v_xs, ys: v_ys})
     result = sess.run(accuracy, feed_dict={xs: v_xs, ys: v_ys, keep_prob: 1})
     return result
 
@@ -68,7 +58,6 @@ def max_pool_2x2(x):
     # 用pooling处理跨度大的问题，保存更多的图片信息
     # stride [1, x_movement, y_movement, 1]
     # 输入参数x是卷积神经网络层输出的数据
-    # stride [1, x_movement, y_movement, 1]
     # Must have strides[0] = strides[3] = 1
     # stride在x，y位置多移动一位，隔2个像素移动一下，从而将整个图片的长宽压缩
     # 与conv2d不同在于不用传入weight
@@ -82,17 +71,49 @@ def mnist_cnn_test():
     # softmax一般用来做分类问题的，搭配交叉熵损失函数
     xs = tf.placeholder(tf.float32, [None, 784])
     ys = tf.placeholder(tf.float32, [None, 10])
+    keep_prob = tf.placeholder(tf.float32)
+    # 处理传入的图片信息
+    # xs包括了所有图片的例子，-1是先忽略维度；28，28对应784拆分的像素点；1对应黑白图片，彩色的rgb是3
+    x_image = tf.reshape(xs, [-1, 28, 28, 1])
+    # x_image 的shape：[n_samples, 28, 28, 1]
+    # print(x_image.shape)
 
-    # add output layer
+    # 定义各层
+    # conv1 layer
+    # 定义第一个卷积神经网络的weight，patch:5*5,in size:1,out size 32
+    # patch 是扫描器大小，in size是image的厚度，out size是输出的高
+    W_conv1 = weight_variable([5, 5, 1, 32])
+    # 32个长度的bias
+    b_conv1 = bias_variable([32])
+    # 搭建第一层卷积神经网络，并嵌套一个激励函数relu的非线性的处理，使其非线性化
+    h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)  # output size 28x28x32
+    h_pool1 = max_pool_2x2(h_conv1)  # output size 14x14x32
 
-    prediction = add_layer(xs, 784, 10,  activation_function=tf.nn.softmax)
+    # conv2 layer
+    W_conv2 = weight_variable([5, 5, 32, 64])  # patch 5x5, in size 32, out size 64
+    b_conv2 = bias_variable([64])
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)  # output size 14x14x64
+    h_pool2 = max_pool_2x2(h_conv2)  # output size 7x7x64
+
+    # fc1 layer
+    W_fc1 = weight_variable([7 * 7 * 64, 1024])
+    b_fc1 = bias_variable([1024])
+    # 将上面两层卷积神经网络加工出来的3维数据转成1维
+    # [n_samples, 7, 7, 64] ->> [n_samples, 7*7*64]
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    ## fc2 layer ##
+    W_fc2 = weight_variable([1024, 10])
+    b_fc2 = bias_variable([10])
+    prediction = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
     # the error between prediction and real data
-    # 分类问题一般使用cross_entropy算法，交叉熵损失函数
     cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
-                                                  reduction_indices=[1]))
-    # 使用梯度下降优化器，学习率0.5
-    train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+                                                  reduction_indices=[1]))  # loss
+    # 不再使用梯度下降优化器，adam需要更小的学习率
+    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
     sess = tf.Session()
     # important step
@@ -105,17 +126,11 @@ def mnist_cnn_test():
     sess.run(init)
 
     for i in range(1000):
-        # 提取一部分x,y作为样本；随机梯度下降
-        # 计算能力有限，每次不学习整套data，学习整套data会非常耗时
-        # 这里每次学习100个数据
         batch_xs, batch_ys = mnist.train.next_batch(100)
-        sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys})
-        # 每隔50步打印准确度
-        #
+        sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
         if i % 50 == 0:
-            # 使用测试集计算准确度
             print(compute_accuracy(
-                xs, mnist.test.images, ys, mnist.test.labels, prediction, sess))
+                xs, mnist.test.images[:1000], ys, mnist.test.labels[:1000], sess, keep_prob, prediction))
 
 
 if __name__ == "__main__":
