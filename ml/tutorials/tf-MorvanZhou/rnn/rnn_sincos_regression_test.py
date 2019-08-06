@@ -133,10 +133,13 @@ if __name__ == '__main__':
     # $ tensorboard --logdir='logs'
 
     # 使用plt可视化学习的过程
+    # 启动交互模式
     plt.ion()
+    # show不会组织主程序的运行
     plt.show()
     for i in range(200):
-        # 使用seq预测res 
+        # 使用seq预测res
+        # xs是整个时间点的data
         seq, res, xs = get_batch()
         if i == 0:
             feed_dict = {
@@ -162,7 +165,7 @@ if __name__ == '__main__':
         plt.draw()
         plt.pause(0.3)
 
-        if i % 20 == 0:
-            print('cost: ', round(cost, 4))
-            result = sess.run(merged, feed_dict)
-            writer.add_summary(result, i)
+        # if i % 20 == 0:
+        #     print('cost: ', round(cost, 4))
+        #     result = sess.run(merged, feed_dict)
+        #     writer.add_summary(result, i)
